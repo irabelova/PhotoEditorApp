@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PhotoEditorApp</string>
+    <string name="make_photo">Сделать фото</string>
+    <string name="upload_photo_from_device">Использовать фото из хранилища телефона</string>
+    <string name="draw">Рисовать</string>
+    <string name="filters">Фильтры</string>
+    <string name="crop">Кадрировать</string>
+</resources>
