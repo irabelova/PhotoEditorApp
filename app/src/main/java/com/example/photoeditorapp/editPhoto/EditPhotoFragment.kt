@@ -11,19 +11,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.photoeditorapp.R
 import com.example.photoeditorapp.databinding.EditPhotoFragmentBinding
+import com.example.photoeditorapp.editPhoto.filters.FilterFragment
 import ja.burhanrashid52.photoeditor.PhotoEditor
 
 class EditPhotoFragment : Fragment() {
     private lateinit var binding: EditPhotoFragmentBinding
     private lateinit var photoEditor: PhotoEditor
-    private val viewModel: EditPhotoViewModel by activityViewModels()
+    private val viewModel: EditPhotoViewModel by activityViewModels {
+        EditPhotoViewModel.EditPhotoFactory(requireArguments().getParcelable(URI_KEY)!!)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = EditPhotoFragmentBinding.inflate(inflater, container, false)
-        val uri = requireArguments().getParcelable<Uri>(URI_KEY)
-        binding.photoEditorView.source.setImageURI(uri)
+        binding.photoEditorView.source.setImageURI(requireArguments().getParcelable(URI_KEY)!!)
         binding.photoEditorView.source.scaleType = ImageView.ScaleType.FIT_START
         photoEditor = PhotoEditor.Builder(requireContext(), binding.photoEditorView)
             .setPinchTextScalable(true)
@@ -35,10 +37,14 @@ class EditPhotoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.editType.observe(viewLifecycleOwner) {
-            when(it) {
+            when (it) {
                 EditType.COMMON -> replaceFragment(EditMenuFragment())
+                EditType.FILTER -> replaceFragment(FilterFragment())
                 else -> {}
             }
+        }
+        viewModel.filter.observe(viewLifecycleOwner) {
+            photoEditor.setFilterEffect(it)
         }
     }
 

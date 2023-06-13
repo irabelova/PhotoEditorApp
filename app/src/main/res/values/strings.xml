@@ -5,4 +5,6 @@
     <string name="draw">Рисовать</string>
     <string name="filters">Фильтры</string>
     <string name="crop">Кадрировать</string>
+    <string name="auto_fix">Авто</string>
+    <string name="black_white">Черно-белый</string>
 </resources>
