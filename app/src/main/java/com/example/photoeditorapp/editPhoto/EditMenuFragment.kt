@@ -21,6 +21,9 @@ class EditMenuFragment: Fragment() {
         binding.setFilterButton.setOnClickListener {
             viewModel.setEditType(EditType.FILTER)
         }
+        binding.drawButton.setOnClickListener {
+            viewModel.setEditType(EditType.DRAW)
+        }
         return binding.root
     }
 }

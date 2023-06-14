@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="MissingDefaultResource">
+    <item
+        android:id="@+id/apply_changes"
+        android:icon="@drawable/ic_apply_changes"
+        app:showAsAction="always"
+        android:title="@string/apply_changes" />
+
+    <item
+        android:id="@+id/cancel_changes"
+        android:icon="@drawable/ic_cancel_changes"
+        app:showAsAction="ifRoom"
+        android:title="@string/cancel_changes" />
+
+    <item
+        android:id="@+id/cancel_last_change"
+        android:icon="@drawable/ic_cancel_last_change"
+        app:showAsAction="ifRoom"
+        android:title="@string/cancel_last_change" />
+</menu>

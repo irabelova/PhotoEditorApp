@@ -23,8 +23,8 @@ class FilterFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val adapter = FilterAdapter {
-            viewModel.setFilter(it)
+        val adapter = FilterAdapter (filters) {
+            viewModel.setFilter(it.filter)
         }
         binding.filtersListView.adapter = adapter
     }

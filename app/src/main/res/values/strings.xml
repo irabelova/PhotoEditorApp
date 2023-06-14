@@ -7,4 +7,22 @@
     <string name="crop">Кадрировать</string>
     <string name="auto_fix">Авто</string>
     <string name="black_white">Черно-белый</string>
+    <string name="apply_changes">Подтвердить</string>
+    <string name="cancel_changes">Отменить</string>
+    <string name="brush_size">Размер кисти</string>
+    <string name="brush_color">Цвет кисти</string>
+    <string name="brightness">Яркий</string>
+    <string name="contrast">Цветовой контраст</string>
+    <string name="documentary">Состаренный</string>
+    <string name="fill_light">Мягкий свет</string>
+    <string name="fish_eye">Рыбий глаз</string>
+    <string name="grain">Затемненный</string>
+    <string name="negative">Негатив</string>
+    <string name="posterize">Постеризация</string>
+    <string name="saturate">Насыщенный</string>
+    <string name="sepia">Сепия</string>
+    <string name="temperature">Теплый</string>
+    <string name="tint">Тинт</string>
+    <string name="vignette">Виньетка</string>
+    <string name="cancel_last_change">Отменить последнее действие</string>
 </resources>

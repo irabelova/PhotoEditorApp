@@ -17,7 +17,7 @@
 <resources>
 
     <style name="Buttons" parent="Widget.MaterialComponents.TextView">
-        <item name="android:layout_width">90dp</item>
+        <item name="android:layout_width">120dp</item>
         <item name="android:layout_height">90dp</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/grey</item>

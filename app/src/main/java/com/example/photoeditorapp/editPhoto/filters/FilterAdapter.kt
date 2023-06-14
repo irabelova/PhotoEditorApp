@@ -7,15 +7,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.photoeditorapp.R
-import ja.burhanrashid52.photoeditor.PhotoFilter
 
-class FilterAdapter(private val clickListener: (PhotoFilter) -> Unit) :
+class FilterAdapter(private val filterList: List<FilterModel>, private val clickListener: (FilterModel) -> Unit) :
     RecyclerView.Adapter<FilterAdapter.FilterViewHolder>() {
-
-    private val filterList = listOf(
-        FilterModel(PhotoFilter.AUTO_FIX, R.string.auto_fix , R.drawable.auto_fix),
-        FilterModel(PhotoFilter.BLACK_WHITE, R.string.black_white , R.drawable.b_n_w)
-    )
 
 
     class FilterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -40,6 +34,6 @@ class FilterAdapter(private val clickListener: (PhotoFilter) -> Unit) :
         holder.filterTitle.text = holder.filterItem.context.getString(item.title)
         holder.filterImage.setBackgroundResource(item.image)
 
-        holder.filterItem.setOnClickListener { clickListener(item.filter) }
+        holder.filterItem.setOnClickListener { clickListener(item) }
     }
 }

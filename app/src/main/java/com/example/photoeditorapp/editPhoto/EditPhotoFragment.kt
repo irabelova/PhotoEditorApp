@@ -2,17 +2,20 @@ package com.example.photoeditorapp.editPhoto
 
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.photoeditorapp.R
 import com.example.photoeditorapp.databinding.EditPhotoFragmentBinding
+import com.example.photoeditorapp.editPhoto.drawing.DrawingFragment
 import com.example.photoeditorapp.editPhoto.filters.FilterFragment
+import ja.burhanrashid52.photoeditor.OnPhotoEditorListener
 import ja.burhanrashid52.photoeditor.PhotoEditor
+import ja.burhanrashid52.photoeditor.ViewType
+import ja.burhanrashid52.photoeditor.shape.ShapeBuilder
+import ja.burhanrashid52.photoeditor.shape.ShapeType
 
 class EditPhotoFragment : Fragment() {
     private lateinit var binding: EditPhotoFragmentBinding
@@ -31,22 +34,99 @@ class EditPhotoFragment : Fragment() {
             .setPinchTextScalable(true)
             .setClipSourceImage(true)
             .build()
+        binding.toolbar.inflateMenu(R.menu.toolbar_menu)
+        getCancelItem().setOnMenuItemClickListener {
+            viewModel.cancelChanges()
+            true
+        }
+        getApplyItem().setOnMenuItemClickListener {
+           viewModel.applyChanges()
+            true
+        }
+
+        getCancelLastChangeItem().setOnMenuItemClickListener {
+            val nothingToUndo = photoEditor.undo()
+            if(!nothingToUndo) {
+                viewModel.decrementChangeCount()
+            }
+            true
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        photoEditor.setOnPhotoEditorListener(object : OnPhotoEditorListener {
+            override fun onAddViewListener(viewType: ViewType?, numberOfAddedViews: Int) {
+                viewModel.incrementChangeCount()
+            }
+
+            override fun onEditTextChangeListener(rootView: View?, text: String?, colorCode: Int) {
+            }
+
+            override fun onRemoveViewListener(viewType: ViewType?, numberOfAddedViews: Int) {
+            }
+
+            override fun onStartViewChangeListener(viewType: ViewType?) {
+            }
+
+            override fun onStopViewChangeListener(viewType: ViewType?) {
+            }
+
+            override fun onTouchSourceImage(event: MotionEvent?) {
+            }
+        })
         viewModel.editType.observe(viewLifecycleOwner) {
             when (it) {
-                EditType.COMMON -> replaceFragment(EditMenuFragment())
-                EditType.FILTER -> replaceFragment(FilterFragment())
+                EditType.COMMON -> {
+                    photoEditor.setBrushDrawingMode(false)
+                    replaceFragment(EditMenuFragment())
+                    getApplyItem().isVisible = false
+                    getCancelItem().isVisible = false
+                    getCancelLastChangeItem().isVisible = false
+                }
+
+                EditType.FILTER -> {
+                    photoEditor.setBrushDrawingMode(false)
+                    getApplyItem().isVisible = true
+                    getCancelItem().isVisible = true
+                    getCancelLastChangeItem().isVisible = false
+                    replaceFragment(FilterFragment())
+                }
+                EditType.DRAW -> {
+                    photoEditor.setBrushDrawingMode(true)
+                    getApplyItem().isVisible = true
+                    getCancelItem().isVisible = true
+                    getCancelLastChangeItem().isVisible = true
+                    replaceFragment(DrawingFragment.newInstance(viewModel.drawingOptions.value))
+                }
                 else -> {}
             }
         }
         viewModel.filter.observe(viewLifecycleOwner) {
             photoEditor.setFilterEffect(it)
         }
+        viewModel.drawingOptions.observe(viewLifecycleOwner) {
+            val shapeBuilder = ShapeBuilder()
+                .withShapeType(ShapeType.Brush)
+                .withShapeSize(it.brushSize)
+                .withShapeColor(it.color)
+            photoEditor.setShape(shapeBuilder)
+        }
+        viewModel.undoAll.observe(viewLifecycleOwner) {
+            for (item: Int in 0..it) {
+                photoEditor.undo()
+            }
+        }
     }
+
+    private fun getCancelItem() = getToolbarItem(R.id.cancel_changes)
+    private fun getApplyItem() = getToolbarItem(R.id.apply_changes)
+
+    private fun getCancelLastChangeItem() = getToolbarItem(R.id.cancel_last_change)
+    private fun getToolbarItem(id: Int): MenuItem =
+        binding.toolbar.menu.findItem(id)
+
 
     private fun replaceFragment(fragment: Fragment) {
         childFragmentManager.beginTransaction()
