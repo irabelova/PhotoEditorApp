@@ -24,6 +24,9 @@ class EditMenuFragment: Fragment() {
         binding.drawButton.setOnClickListener {
             viewModel.setEditType(EditType.DRAW)
         }
+        binding.textButton.setOnClickListener {
+            viewModel.setEditType(EditType.TEXT)
+        }
         return binding.root
     }
 }

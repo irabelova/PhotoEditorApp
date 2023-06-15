@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
+import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -11,8 +12,11 @@ import com.example.photoeditorapp.R
 import com.example.photoeditorapp.databinding.EditPhotoFragmentBinding
 import com.example.photoeditorapp.editPhoto.drawing.DrawingFragment
 import com.example.photoeditorapp.editPhoto.filters.FilterFragment
+import com.example.photoeditorapp.editPhoto.text.TextFragment
+import com.example.photoeditorapp.utils.showConfirmGoBackDialog
 import ja.burhanrashid52.photoeditor.OnPhotoEditorListener
 import ja.burhanrashid52.photoeditor.PhotoEditor
+import ja.burhanrashid52.photoeditor.TextStyleBuilder
 import ja.burhanrashid52.photoeditor.ViewType
 import ja.burhanrashid52.photoeditor.shape.ShapeBuilder
 import ja.burhanrashid52.photoeditor.shape.ShapeType
@@ -40,15 +44,12 @@ class EditPhotoFragment : Fragment() {
             true
         }
         getApplyItem().setOnMenuItemClickListener {
-           viewModel.applyChanges()
+            viewModel.applyChanges()
             true
         }
 
         getCancelLastChangeItem().setOnMenuItemClickListener {
-            val nothingToUndo = photoEditor.undo()
-            if(!nothingToUndo) {
-                viewModel.decrementChangeCount()
-            }
+            viewModel.undo()
             true
         }
         return binding.root
@@ -80,6 +81,7 @@ class EditPhotoFragment : Fragment() {
             when (it) {
                 EditType.COMMON -> {
                     photoEditor.setBrushDrawingMode(false)
+                    photoEditor.clearHelperBox()
                     replaceFragment(EditMenuFragment())
                     getApplyItem().isVisible = false
                     getCancelItem().isVisible = false
@@ -100,6 +102,13 @@ class EditPhotoFragment : Fragment() {
                     getCancelLastChangeItem().isVisible = true
                     replaceFragment(DrawingFragment.newInstance(viewModel.drawingOptions.value))
                 }
+                EditType.TEXT -> {
+                    photoEditor.setBrushDrawingMode(false)
+                    getApplyItem().isVisible = true
+                    getCancelItem().isVisible = true
+                    getCancelLastChangeItem().isVisible = false
+                    replaceFragment(TextFragment())
+                }
                 else -> {}
             }
         }
@@ -113,10 +122,28 @@ class EditPhotoFragment : Fragment() {
                 .withShapeColor(it.color)
             photoEditor.setShape(shapeBuilder)
         }
-        viewModel.undoAll.observe(viewLifecycleOwner) {
-            for (item: Int in 0..it) {
+        viewModel.undo.observe(viewLifecycleOwner) {
+            for (item: Int in 0 until it) {
                 photoEditor.undo()
             }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    showConfirmGoBackDialog(
+                        onConfirm = {
+                            isEnabled = false
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        }
+                    )
+                }
+            })
+        viewModel.textOptions.observe(viewLifecycleOwner) {
+            val textStyleBuilder = TextStyleBuilder()
+            textStyleBuilder.withTextSize(it.size)
+            textStyleBuilder.withTextColor(it.color)
+            photoEditor.addText(it.text, textStyleBuilder)
         }
     }
 

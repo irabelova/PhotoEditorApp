@@ -20,15 +20,15 @@
         android:drawableTop="@drawable/ic_photo_filter"
         android:text="@string/filters"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/crop_button"
+        app:layout_constraintEnd_toStartOf="@id/text_button"
         app:layout_constraintStart_toEndOf="@id/draw_button"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/crop_button"
+        android:id="@+id/text_button"
         style="@style/Buttons"
-        android:drawableTop="@drawable/ic_crop"
-        android:text="@string/crop"
+        android:drawableTop="@drawable/ic_text"
+        android:text="@string/text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/set_filter_button"

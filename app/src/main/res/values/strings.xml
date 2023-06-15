@@ -4,7 +4,6 @@
     <string name="upload_photo_from_device">Использовать фото из хранилища телефона</string>
     <string name="draw">Рисовать</string>
     <string name="filters">Фильтры</string>
-    <string name="crop">Кадрировать</string>
     <string name="auto_fix">Авто</string>
     <string name="black_white">Черно-белый</string>
     <string name="apply_changes">Подтвердить</string>
@@ -25,4 +24,13 @@
     <string name="tint">Тинт</string>
     <string name="vignette">Виньетка</string>
     <string name="cancel_last_change">Отменить последнее действие</string>
+    <string name="text">Текст</string>
+    <string name="ok">OK</string>
+    <string name="text_size">Размер шрифта</string>
+    <string name="text_color">Цвет текста</string>
+    <string name="add_text">Введите текст</string>
+    <string name="cancel">Отмена</string>
+    <string name="alert_dialog_message">Вы уверены, что хотите отменить изменения?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
 </resources>

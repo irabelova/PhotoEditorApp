@@ -1,4 +1,4 @@
-package com.example.photoeditorapp
+package com.example.photoeditorapp.utils
 
 import android.util.Log
 import androidx.annotation.MainThread

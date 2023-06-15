@@ -3,7 +3,7 @@ package com.example.photoeditorapp.mainMenu
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.example.photoeditorapp.SingleLiveEvent
+import com.example.photoeditorapp.utils.SingleLiveEvent
 
 class MainMenuViewModel: ViewModel() {
 
