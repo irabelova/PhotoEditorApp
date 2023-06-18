@@ -1,6 +1,7 @@
 package com.example.photoeditorapp.editPhoto
 
 import android.net.Uri
+import android.os.Environment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,7 +9,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.photoeditorapp.utils.SingleLiveEvent
 import com.example.photoeditorapp.editPhoto.drawing.DrawingOptions
 import com.example.photoeditorapp.editPhoto.text.TextModel
+import com.example.photoeditorapp.utils.getFilename
 import ja.burhanrashid52.photoeditor.PhotoFilter
+import java.io.File
 
 class EditPhotoViewModel(val selectedUri: Uri) : ViewModel() {
     private val _editType = MutableLiveData(EditType.COMMON)
@@ -31,12 +34,25 @@ class EditPhotoViewModel(val selectedUri: Uri) : ViewModel() {
     private val _undo = SingleLiveEvent<Int>()
     val undo: LiveData<Int> = _undo
 
+    private val _saveFileEvent = SingleLiveEvent<SavingModel>()
+    val saveFileEvent: LiveData<SavingModel> = _saveFileEvent
+
+    private val _shareFileEvent = SingleLiveEvent<File>()
+    val shareFileEvent: LiveData<File> = _shareFileEvent
+
     private var changeCount = 0
     private var filterChanged = false
+    private var changesAmount = 0
+    private var savedFile: File? = null
 
     fun setFilter(photoFilter: PhotoFilter) {
         filterChanged = true
+        changesAmount++
         _filter.value = photoFilter
+    }
+
+    fun isShowSaveButton(): Boolean {
+        return changesAmount>0
     }
 
     fun changeBrushColor(color: Int) {
@@ -76,13 +92,15 @@ class EditPhotoViewModel(val selectedUri: Uri) : ViewModel() {
         _editType.value = EditType.COMMON
     }
 
-    fun incrementChangeCount() {
+    fun incrementChanges() {
         changeCount++
+        changesAmount++
     }
 
     fun undo() {
         if(changeCount > 0) {
             changeCount--
+            changesAmount--
             _undo.value = 1
         }
 
@@ -93,16 +111,43 @@ class EditPhotoViewModel(val selectedUri: Uri) : ViewModel() {
             EditType.FILTER -> {
                 if(filterChanged) {
                     setFilter(PhotoFilter.NONE)
+                    changesAmount--
                 }
             }
             EditType.TEXT,
             EditType.DRAW  -> {
                 _undo.value = changeCount
+                changesAmount -= changeCount
                 changeCount = 0
+
             }
             else -> {}
         }
         _editType.value = EditType.COMMON
+    }
+
+    fun save(share: Boolean) {
+            val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +
+                    File.separator + "PhotoEditor"
+            val parentFile = File(path)
+            if(!parentFile.exists()) {
+                parentFile.mkdirs()
+            }
+            val fileName = getFilename()
+            savedFile = File(parentFile, fileName)
+            _saveFileEvent.value = SavingModel(savedFile!!, share)
+    }
+
+    fun fileSavingFailed() {
+        savedFile = null
+    }
+
+    fun shareFile() {
+        if(savedFile == null) {
+            save(true)
+        } else {
+            _shareFileEvent.value = savedFile!!
+        }
     }
 
 

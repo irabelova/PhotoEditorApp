@@ -1,30 +1,33 @@
 package com.example.photoeditorapp.editPhoto
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.example.photoeditorapp.R
 import com.example.photoeditorapp.databinding.EditPhotoFragmentBinding
 import com.example.photoeditorapp.editPhoto.drawing.DrawingFragment
 import com.example.photoeditorapp.editPhoto.filters.FilterFragment
 import com.example.photoeditorapp.editPhoto.text.TextFragment
 import com.example.photoeditorapp.utils.showConfirmGoBackDialog
-import ja.burhanrashid52.photoeditor.OnPhotoEditorListener
-import ja.burhanrashid52.photoeditor.PhotoEditor
-import ja.burhanrashid52.photoeditor.TextStyleBuilder
-import ja.burhanrashid52.photoeditor.ViewType
+import ja.burhanrashid52.photoeditor.*
 import ja.burhanrashid52.photoeditor.shape.ShapeBuilder
 import ja.burhanrashid52.photoeditor.shape.ShapeType
+
 
 class EditPhotoFragment : Fragment() {
     private lateinit var binding: EditPhotoFragmentBinding
     private lateinit var photoEditor: PhotoEditor
-    private val viewModel: EditPhotoViewModel by activityViewModels {
+    private val viewModel: EditPhotoViewModel by viewModels(ownerProducer = { this }) {
         EditPhotoViewModel.EditPhotoFactory(requireArguments().getParcelable(URI_KEY)!!)
     }
 
@@ -32,7 +35,9 @@ class EditPhotoFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = EditPhotoFragmentBinding.inflate(inflater, container, false)
+
         binding.photoEditorView.source.setImageURI(requireArguments().getParcelable(URI_KEY)!!)
+
         binding.photoEditorView.source.scaleType = ImageView.ScaleType.FIT_START
         photoEditor = PhotoEditor.Builder(requireContext(), binding.photoEditorView)
             .setPinchTextScalable(true)
@@ -52,6 +57,12 @@ class EditPhotoFragment : Fragment() {
             viewModel.undo()
             true
         }
+
+        getSaveItem().setOnMenuItemClickListener {
+            replaceFragment(SavingMenuFragment())
+            viewModel.setEditType(EditType.SAVE)
+            true
+        }
         return binding.root
     }
 
@@ -59,7 +70,7 @@ class EditPhotoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         photoEditor.setOnPhotoEditorListener(object : OnPhotoEditorListener {
             override fun onAddViewListener(viewType: ViewType?, numberOfAddedViews: Int) {
-                viewModel.incrementChangeCount()
+                viewModel.incrementChanges()
             }
 
             override fun onEditTextChangeListener(rootView: View?, text: String?, colorCode: Int) {
@@ -86,12 +97,16 @@ class EditPhotoFragment : Fragment() {
                     getApplyItem().isVisible = false
                     getCancelItem().isVisible = false
                     getCancelLastChangeItem().isVisible = false
+                    if (viewModel.isShowSaveButton()) {
+                        getSaveItem().isVisible = true
+                    }
                 }
 
                 EditType.FILTER -> {
                     photoEditor.setBrushDrawingMode(false)
                     getApplyItem().isVisible = true
                     getCancelItem().isVisible = true
+                    getSaveItem().isVisible = false
                     getCancelLastChangeItem().isVisible = false
                     replaceFragment(FilterFragment())
                 }
@@ -99,6 +114,7 @@ class EditPhotoFragment : Fragment() {
                     photoEditor.setBrushDrawingMode(true)
                     getApplyItem().isVisible = true
                     getCancelItem().isVisible = true
+                    getSaveItem().isVisible = false
                     getCancelLastChangeItem().isVisible = true
                     replaceFragment(DrawingFragment.newInstance(viewModel.drawingOptions.value))
                 }
@@ -106,8 +122,17 @@ class EditPhotoFragment : Fragment() {
                     photoEditor.setBrushDrawingMode(false)
                     getApplyItem().isVisible = true
                     getCancelItem().isVisible = true
+                    getSaveItem().isVisible = false
                     getCancelLastChangeItem().isVisible = false
                     replaceFragment(TextFragment())
+                }
+                EditType.SAVE -> {
+                    photoEditor.setBrushDrawingMode(false)
+                    getApplyItem().isVisible = false
+                    getCancelItem().isVisible = false
+                    getSaveItem().isVisible = false
+                    getCancelLastChangeItem().isVisible = false
+                    replaceFragment(SavingMenuFragment())
                 }
                 else -> {}
             }
@@ -131,12 +156,17 @@ class EditPhotoFragment : Fragment() {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    showConfirmGoBackDialog(
-                        onConfirm = {
-                            isEnabled = false
-                            requireActivity().onBackPressedDispatcher.onBackPressed()
-                        }
-                    )
+                    if (viewModel.editType.value != EditType.SAVE) {
+                        showConfirmGoBackDialog(
+                            onConfirm = {
+                                isEnabled = false
+                                requireActivity().onBackPressedDispatcher.onBackPressed()
+                            }
+                        )
+                    } else {
+                        replaceFragment(EditMenuFragment())
+                        viewModel.setEditType(EditType.COMMON)
+                    }
                 }
             })
         viewModel.textOptions.observe(viewLifecycleOwner) {
@@ -145,12 +175,56 @@ class EditPhotoFragment : Fragment() {
             textStyleBuilder.withTextColor(it.color)
             photoEditor.addText(it.text, textStyleBuilder)
         }
+        val saveSettings: SaveSettings = SaveSettings.Builder()
+            .setClearViewsEnabled(false)
+            .setTransparencyEnabled(true)
+            .setCompressFormat(Bitmap.CompressFormat.PNG)
+            .build()
+        viewModel.saveFileEvent.observe(viewLifecycleOwner) {
+            photoEditor.saveAsFile(it.file.absolutePath, saveSettings, object : PhotoEditor.OnSaveListener{
+                override fun onFailure(exception: Exception) {
+                    Log.e("SAVING", "Saving failed", exception)
+                    viewModel.fileSavingFailed()
+                }
+
+                override fun onSuccess(imagePath: String) {
+                    Log.d("SAVING", "Success")
+                    if(it.share) {
+                        viewModel.shareFile()
+                    }else {
+                        // TODO: Show toost
+                    }
+                }
+            })
+        }
+
+        viewModel.shareFileEvent.observe(viewLifecycleOwner) {
+            val intent = Intent()
+            intent.action = Intent.ACTION_SEND
+            intent.type = "image/*"
+            intent.putExtra(
+                Intent.EXTRA_STREAM,
+                FileProvider.getUriForFile(
+                    requireContext(),
+                    "com.example.android.fileprovider",
+                    it
+                )
+            )
+            val shareIntent = Intent.createChooser(intent, null)
+            try {
+                startActivity(shareIntent)
+            }catch (e: ActivityNotFoundException) {
+                Log.e("SAVING", "No activity to share", e)
+                // TODO: Show toast
+            }
+        }
     }
 
     private fun getCancelItem() = getToolbarItem(R.id.cancel_changes)
     private fun getApplyItem() = getToolbarItem(R.id.apply_changes)
-
     private fun getCancelLastChangeItem() = getToolbarItem(R.id.cancel_last_change)
+
+    private fun getSaveItem() = getToolbarItem(R.id.save_changes)
     private fun getToolbarItem(id: Int): MenuItem =
         binding.toolbar.menu.findItem(id)
 

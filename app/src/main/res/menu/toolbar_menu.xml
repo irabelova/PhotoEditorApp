@@ -4,9 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:ignore="MissingDefaultResource">
     <item
+        android:id="@+id/save_changes"
+        android:icon="@drawable/ic_save"
+        app:showAsAction="ifRoom"
+        android:visible="false"
+        android:title="@string/save_image" />
+
+    <item
         android:id="@+id/apply_changes"
         android:icon="@drawable/ic_apply_changes"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:title="@string/apply_changes" />
 
     <item

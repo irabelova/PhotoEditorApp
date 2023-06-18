@@ -3,6 +3,9 @@ package com.example.photoeditorapp.utils
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.example.photoeditorapp.R
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 fun Fragment.showConfirmGoBackDialog(
     onConfirm: () -> Unit,
@@ -24,4 +27,18 @@ fun Fragment.showConfirmGoBackDialog(
     alertDialog.setCancelable(true)
     alertDialog.show()
 
+}
+
+fun createImageFile(storageDir: File?): File {
+    val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    return File.createTempFile(
+        "JPEG_${timeStamp}_",
+        ".jpg",
+        storageDir
+    )
+}
+
+fun getFilename(): String {
+    val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    return "JPEG_${timeStamp}.jpg"
 }

@@ -10,8 +10,18 @@ class MainMenuViewModel: ViewModel() {
     private val _uri = SingleLiveEvent<Uri>()
     val uri: LiveData<Uri> = _uri
 
+    private var tmpUri: Uri? = null
+
     fun setUri(uri: Uri) {
         _uri.value = uri
+    }
+
+    fun setTmpUri(uri: Uri) {
+        tmpUri = uri
+    }
+
+    fun confirmTmpUri() {
+        tmpUri?.let { _uri.value = it }
     }
 
 }

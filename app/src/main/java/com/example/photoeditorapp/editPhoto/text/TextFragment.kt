@@ -9,14 +9,14 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.example.photoeditorapp.databinding.TextFragmentBinding
 import com.example.photoeditorapp.editPhoto.EditPhotoViewModel
 
 
 class TextFragment: Fragment() {
     private lateinit var binding: TextFragmentBinding
-    private val viewModel: EditPhotoViewModel by activityViewModels()
+    private val viewModel: EditPhotoViewModel by viewModels(ownerProducer = { requireParentFragment() })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

@@ -4,5 +4,6 @@ enum class EditType {
     COMMON,
     FILTER,
     DRAW,
-    TEXT
+    TEXT,
+    SAVE
 }

@@ -33,4 +33,7 @@
     <string name="alert_dialog_message">Вы уверены, что хотите отменить изменения?</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
+    <string name="save_image">Сохранить</string>
+    <string name="download">Скачать</string>
+    <string name="share">Поделиться</string>
 </resources>
