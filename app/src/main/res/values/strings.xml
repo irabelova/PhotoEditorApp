@@ -36,4 +36,11 @@
     <string name="save_image">Сохранить</string>
     <string name="download">Скачать</string>
     <string name="share">Поделиться</string>
+    <string name="photo_has_been_saved">Фото сохранено</string>
+    <string name="save_error">Ошибка сохранения</string>
+    <string name="note">Уведомление</string>
+    <string name="settings_dialog_message">Чтобы сделать фото, разрешите приложению доступ к камере. Перейдите в Настройки > Разрешения и включите Камеру</string>
+    <string name="settings">Настройки</string>
+    <string name="not_now">Не сейчас</string>
+    <string name="allow_make_photo">Чтобы сделать фото, разрешите приложению доступ к камере</string>
 </resources>

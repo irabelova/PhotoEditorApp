@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,7 +55,7 @@ class MainMenuFragment : Fragment() {
                 if (isGranted) {
                     startCamera()
                 }else {
-                    // TODO: Show toast 
+                    Toast.makeText(requireContext(), getString(R.string.allow_make_photo), Toast.LENGTH_LONG).show()
                 }
             }
     }
@@ -78,16 +79,16 @@ class MainMenuFragment : Fragment() {
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
                     val builder = AlertDialog.Builder(requireActivity())
-                    builder.setTitle(R.string.cancel)
-                    builder.setMessage(R.string.alert_dialog_message)
-                    builder.setIcon(R.drawable.ic_cancel_last_change)
-                    builder.setPositiveButton(R.string.yes) { dialog, _ ->
+                    builder.setTitle(R.string.note)
+                    builder.setMessage(R.string.settings_dialog_message)
+                    builder.setIcon(R.drawable.ic_settings)
+                    builder.setPositiveButton(R.string.settings) { dialog, _ ->
                         val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-                        intent.data = Uri.parse("package:com.example.photoeditorapp");
+                        intent.data = Uri.parse("package:com.example.photoeditorapp")
                         startActivity(intent)
                         dialog.cancel()
                     }
-                    builder.setNegativeButton(R.string.no) { dialog, _ ->
+                    builder.setNegativeButton(R.string.not_now) { dialog, _ ->
                         dialog.cancel()
                     }
                     val alertDialog: AlertDialog = builder.create()

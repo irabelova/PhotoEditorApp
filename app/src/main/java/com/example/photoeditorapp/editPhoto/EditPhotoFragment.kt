@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
@@ -27,9 +28,7 @@ import ja.burhanrashid52.photoeditor.shape.ShapeType
 class EditPhotoFragment : Fragment() {
     private lateinit var binding: EditPhotoFragmentBinding
     private lateinit var photoEditor: PhotoEditor
-    private val viewModel: EditPhotoViewModel by viewModels(ownerProducer = { this }) {
-        EditPhotoViewModel.EditPhotoFactory(requireArguments().getParcelable(URI_KEY)!!)
-    }
+    private val viewModel: EditPhotoViewModel by viewModels(ownerProducer = { this })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -185,6 +184,7 @@ class EditPhotoFragment : Fragment() {
                 override fun onFailure(exception: Exception) {
                     Log.e("SAVING", "Saving failed", exception)
                     viewModel.fileSavingFailed()
+                    Toast.makeText(requireContext(), getString(R.string.save_error), Toast.LENGTH_LONG).show()
                 }
 
                 override fun onSuccess(imagePath: String) {
@@ -192,7 +192,7 @@ class EditPhotoFragment : Fragment() {
                     if(it.share) {
                         viewModel.shareFile()
                     }else {
-                        // TODO: Show toost
+                        Toast.makeText(requireContext(), getString(R.string.photo_has_been_saved), Toast.LENGTH_LONG).show()
                     }
                 }
             })
